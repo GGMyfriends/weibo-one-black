@@ -1,0 +1,39 @@
+{
+	"manifest_version": 3,
+	"name": "fuck-weibo",
+	"version": "1.0.0",
+	"description": "微博网页版插件",
+	"icons":
+	{
+		"16": "img/weibo.png"
+	},
+	"action": 
+	{
+		"default_icon": "img/weibo.png",
+		"default_title": "微博网页插件",
+		"default_popup": "popup.html"
+	},
+	"content_scripts": 
+	[
+		{
+			"matches": ["https://weibo.com/*"],
+			"js": ["js/jquery-3.4.1.min.js", "js/weibo.js"],
+			"run_at": "document_start"
+		}
+	],
+	"permissions":
+	[
+		"contextMenus",
+		"tabs",
+		"notifications",
+		"webRequest",
+		"storage"
+	],
+    "background": {
+        "service_worker": "js/weibo.js"
+    },
+	"homepage_url": "https://www.baidu.com",
+	"omnibox": { "keyword" : "go" }
+}
+
+  
