@@ -6,12 +6,15 @@ function fireContentLoadedEvent() {
     let comments = document.querySelectorAll('.list_li.S_line1.clearfix');
     let cLen = comments.length
     for (let i = 0; i < cLen; i++) {
-        let dom = createBlackListDom();
+        let oneBlackDom = createBlackListDom();
+        let cancelBalckDom = cancelBlackDom();
         let domParent = comments[i].querySelector(".arrow").parentElement;
-        if (domParent.previousElementSibling.childNodes[0].innerHTML == '一键拉黑') {
+        let tempDom = domParent.previousElementSibling.childNodes[0].childNodes[0].innerHTML;
+        if (tempDom == '取黑') {
             continue;
         }
-        domParent.before(dom);
+        domParent.before(oneBlackDom);
+        domParent.before(cancelBalckDom);
     }
 }
 
@@ -21,17 +24,38 @@ function createBlackListDom() {
     aDom.appendChild(blackText)
     aDom.setAttribute('class', 'S_txt1')
 
+    let bDom = document.createElement('span')
+    bDom.appendChild(aDom)
+    bDom.setAttribute('class', 'line S_line1')
+
     let dom = document.createElement('li')
-    dom.appendChild(aDom)
+    dom.appendChild(bDom)
     dom.setAttribute("class", 'hover')
     dom.addEventListener("click", pullBlackList)
     return dom;
 }
 
-//主调用流程
+function cancelBlackDom() {
+    let aDom = document.createElement('a')
+    let cancelBlackText = document.createTextNode('取黑')
+    aDom.appendChild(cancelBlackText)
+    aDom.setAttribute('class', 'S_txt1')
+
+    let bDom = document.createElement('span')
+    bDom.appendChild(aDom)
+    bDom.setAttribute('class', 'line S_line1')
+
+    let dom = document.createElement('li')
+    dom.appendChild(bDom)
+    dom.setAttribute("class", 'hover')
+    dom.addEventListener("click", cancelBlack)
+    return dom;
+}
+
+//一键拉黑入口
 function pullBlackList(e) {
     console.log("开始一键拉黑")
-    let tempDom = e.srcElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+    let tempDom = e.srcElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
     let commentIdDom = tempDom.parentElement;
     let commentText = tempDom.getElementsByClassName('WB_text')[0].innerText;
     let commentId = commentIdDom.getAttribute('comment_id');
@@ -55,6 +79,7 @@ function addBlackList(pageNum, objectId, totalpage) {
     setTimeout(() => {
         let res = getLikeBatch(pageNum, objectId);
         let uidList = res.uidList;
+        console.log("拉黑第" + pageNum + "页点赞列表");
         for (let i = 0; i < uidList.length; i++) {
             pullBlack(uidList[i]);
         }
@@ -77,7 +102,7 @@ function getLikeBatch(pageNum, objectId) {
     xhr.open("GET", url, false);
     xhr.send();
     if (xhr.status != 200) {
-        console.log("调用获取点赞列表失败:" + xhr.status);
+        console.error("调用获取点赞列表失败:" + xhr.status);
         return null;
     }
     //解析返回值
@@ -92,7 +117,6 @@ function getLikeBatch(pageNum, objectId) {
         let uidTemp = nameListDom[i];
         uidList.push(uidTemp.getAttribute('uid'));
     }
-    console.log("拉黑第" + pageNum + "页点赞列表");
     console.log(uidList);
     let resTotalPage = resObj.data.page.totalpage
     let res = likeBatchRes();
@@ -117,4 +141,19 @@ function pullBlack(uid) {
     xhr.setRequestHeader("x-xsrf-token", "uRT_DiJLoc5pGnFUGlahmKoY")
     xhr.setRequestHeader("Content-Type", "application/json")
     xhr.send(requestJson);
+}
+
+function cancelBlack(uid) {
+    const xhr = new XMLHttpRequest();
+    let rnd = Math.floor(Math.random() * 1e4 + 1.5788995e12);
+    let url = 'https://'+'account.weibo.com/set/aj5/filter/delfeeduser';
+    xhr.open('POST', url, false)
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+    xhr.send('uid=' + uid + '&_t=0&__rnd' + rnd);
+    if (xhr.status === 200) {
+        var resp = JSON.parse(http.responseText);
+        if (resp.code != 100000){
+            console.error('失败：' + uid);
+        }
+    }
 }
