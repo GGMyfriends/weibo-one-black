@@ -48,7 +48,7 @@ function cancelBlackDom() {
     let dom = document.createElement('li')
     dom.appendChild(bDom)
     dom.setAttribute("class", 'hover')
-    dom.addEventListener("click", cancelBlack)
+    dom.addEventListener("click", cancelBlackList)
     return dom;
 }
 
@@ -61,12 +61,12 @@ function pullBlackList(e) {
     let commentId = commentIdDom.getAttribute('comment_id');
     let pageNum = 1;
     let totalpage = 100;
-    if (confirmation(commentText)) {
+    if (confirmationAddBlack(commentText)) {
         addBlackList(pageNum, commentId, totalpage);
     }
 }
 
-function confirmation(text) {
+function confirmationAddBlack(text) {
     return confirm("你确定要拉黑内容为：\n" + text + "\n\n点赞的人么?");
 }
 
@@ -86,6 +86,43 @@ function addBlackList(pageNum, objectId, totalpage) {
         totalpage = res.totalpage;
         pageNum++;
         addBlackList(pageNum, objectId, totalpage);
+    }, lateTime * 500);
+}
+
+//一键解除拉黑入口
+function cancelBlackList(e) {
+    console.log("解除点赞黑名单")
+    let tempDom = e.srcElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+    let commentIdDom = tempDom.parentElement;
+    let commentText = tempDom.getElementsByClassName('WB_text')[0].innerText;
+    let commentId = commentIdDom.getAttribute('comment_id');
+    let pageNum = 1;
+    let totalpage = 100;
+    if (confirmationCancelBlack(commentText)) {
+        cancelBlackBatch(pageNum, commentId, totalpage);
+    }
+}
+
+function confirmationCancelBlack(text) {
+    return confirm("解除点赞黑名单\n 内容为：\n" + text);
+}
+
+//一键解除拉黑
+function cancelBlackBatch(pageNum, objectId, totalpage) {
+    if (pageNum > totalpage) {
+        return;
+    }
+    lateTime = Math.floor(Math.random() * 6) + 5;
+    setTimeout(() => {
+        let res = getLikeBatch(pageNum, objectId);
+        let uidList = res.uidList;
+        console.log("解除第" + pageNum + "页点赞列表");
+        for (let i = 0; i < uidList.length; i++) {
+            cancelBlack(uidList[i]);
+        }
+        totalpage = res.totalpage;
+        pageNum++;
+        cancelBlackBatch(pageNum, objectId, totalpage);
     }, lateTime * 500);
 }
 
@@ -129,29 +166,26 @@ function getLikeBatch(pageNum, objectId) {
 function pullBlack(uid) {
     var request = {
         uid: '',
-        status: '1',
-        interact: '1',
-        follow: '1'
+        f: '1'
     };
     request.uid = uid;
     var requestJson = JSON.stringify(request)
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "https://weibo.com/ajax/statuses/filterUser")
+    xhr.open("POST", "https://weibo.com/aj/f/addblack?ajwvr=6")
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
-    xhr.setRequestHeader("x-xsrf-token", "uRT_DiJLoc5pGnFUGlahmKoY")
-    xhr.setRequestHeader("Content-Type", "application/json")
-    xhr.send(requestJson);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+    xhr.send('uid=' + uid + '&f=1');
 }
 
 function cancelBlack(uid) {
     const xhr = new XMLHttpRequest();
     let rnd = Math.floor(Math.random() * 1e4 + 1.5788995e12);
-    let url = 'https://'+'account.weibo.com/set/aj5/filter/delfeeduser';
+    let url = 'https://weibo.com/aj/f/delblack?ajwvr=6';
     xhr.open('POST', url, false)
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
     xhr.send('uid=' + uid + '&_t=0&__rnd' + rnd);
     if (xhr.status === 200) {
-        var resp = JSON.parse(http.responseText);
+        var resp = JSON.parse(xhr.responseText);
         if (resp.code != 100000){
             console.error('失败：' + uid);
         }
