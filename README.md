@@ -6,7 +6,7 @@
 1. chrome浏览器中输入chrome://extensions/
 2. 选择加载已解压的扩展程序
 
-![](https://github.com/nitric0x1de/weibo-one-black/blob/main/img/1662629566013.jpg?raw=true)
+<img src="https://github.com/nitric0x1de/weibo-one-black/blob/main/img/1662629566013.jpg" width="30%">
 
 ## 注意事项
 1. 仅支持旧版微博（别问我为啥不支持新版的，问就是因为菜）
