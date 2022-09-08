@@ -16,4 +16,4 @@
 
 
 ## 赞赏
-<img src="https://github.com/nitric0x1de/weibo-one-black/blob/main/img/zs.jpeg" width="60%">
+<img src="https://github.com/nitric0x1de/weibo-one-black/blob/main/img/zs.jpeg" width="30%">
